@@ -58,7 +58,7 @@ class HTTPRequest:
             request_data = [
                 f'{self.http_method} /{self.path} HTTP/{self.http_version}',
                 f'Host: {self.host}',
-                'User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+                'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:101.0) Gecko/20100101 Firefox/101.0',
                 'Connection: close'
             ]
 
