@@ -1,6 +1,6 @@
 from html_parser import HTMLImageLinksParser
-from os import mkdir
 from network import HTTPClient
+import os
 
 
 def write_image(path, bytes_response, all_bytes_count, headers_bytes_count):
@@ -21,7 +21,7 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version):
     image_links = image_links_parser.images
 
     if len(image_links) != 0:
-        mkdir(f'{time}/image')
+        os.mkdir(os.path.join(time, "image"))
 
     for img_url in image_links:
         img_url = img_url if img_url.startswith('http') else cmd_commands_url + img_url
@@ -42,7 +42,7 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version):
         content_type_img = response_img.headers["Content-Type"].replace(";", "/").split("/")[0]
 
         if content_type_img == 'image':
-            write_image(f'{time}/image/{image_name}',
+            write_image(os.path.join(time, "image", image_name),
                         response_img.bytes_response,
                         len(response_img.bytes_response),
                         int(response_img.headers['Content-Length']))

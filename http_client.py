@@ -1,8 +1,8 @@
 import argparse
 import datetime as dt
-from os import mkdir
 from network import HTTPClient
 import utils
+import os
 
 
 def create_parser():
@@ -52,19 +52,19 @@ def main():
 
     time = dt.datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
 
-    mkdir(time)
+    os.mkdir(time)
 
     if content_type is not None and content_type[0] == 'text':
-        utils.write_file(f'{time}/headers.txt', response.inf + '\n' + str(response.headers))
+        utils.write_file(os.path.join(time, "headers.txt"), response.inf + '\n' + str(response.headers))
 
         if cmd_commands.http_method != "HEAD":
-            utils.write_file(f'{time}/result.{content_type[1]}', response.body)
+            utils.write_file(os.path.join(time, f"result.{content_type[1]}"), response.body)
 
         if cmd_commands.http_method == 'GET' and content_type[1] == 'html':
             utils.write_all_images_from_html(response.body, time, cmd_commands.url, cmd_commands.http_version)
 
     elif content_type is not None and content_type[0] == 'image':
-        utils.write_file(f'{time}/headers.txt', response.inf + '\n' + str(response.headers))
+        utils.write_file(os.path.join(time, "headers.txt"), response.inf + '\n' + str(response.headers))
 
         image_name = cmd_commands.url.split('/')[-1]
 
@@ -73,7 +73,7 @@ def main():
                           len(response.bytes_response),
                           int(response.headers['Content-Length']))
     else:
-        utils.write_file(f'{time}/result.txt', response.decoded_response)
+        utils.write_file(os.path.join(time, "result.txt"), response.decoded_response)
 
 
 if __name__ == '__main__':
