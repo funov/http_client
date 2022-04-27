@@ -50,7 +50,7 @@ def main():
         if "Content-Type" in response.headers.keys() \
         else None
 
-    time = str(dt.datetime.now()).replace(' ', '_').replace(':', '_').replace('-', '_').replace('.', '_')
+    time = dt.datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
 
     mkdir(time)
 
