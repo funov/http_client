@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from html_parser import HTMLImageLinksParser
 from os import mkdir
 from network import HTTPClient
 
@@ -15,24 +15,26 @@ def write_file(path, decoded_response):
 
 
 def write_all_images_from_html(body, time, cmd_commands_url, http_version):
-    soup = BeautifulSoup(body, 'html.parser')
+    image_links_parser = HTMLImageLinksParser()
+    image_links_parser.feed(body)
 
-    if len(soup.find_all('img')) != 0:
+    image_links = image_links_parser.images
+
+    if len(image_links) != 0:
         mkdir(f'{time}/image')
 
-    for img in soup.find_all('img'):
-        url = img['src']
-        url = url if url.startswith('http') else cmd_commands_url + url
+    for img_url in image_links:
+        img_url = img_url if img_url.startswith('http') else cmd_commands_url + img_url
 
         response_img = HTTPClient.http_request(
-            url,
+            img_url,
             'GET',
             http_version,
             None,
             None
         )
 
-        image_name = url.split('/')[-1]
+        image_name = img_url.split('/')[-1]
 
         if "Content-Type" not in response_img.headers.keys():
             return None
