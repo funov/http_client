@@ -46,8 +46,6 @@ def main():
     try:
         utils.write_http_response(cmd_commands.url, cmd_commands.http_method, cmd_commands.http_version,
                                   cmd_commands.headers, cmd_commands.send_dt, cmd_commands.user_agent)
-    except OSError:
-        print('Что-то пошло не так, попробуйте снова')
     except RuntimeError:
         print('Что-то пошло не так, напишите разработчикам')
 

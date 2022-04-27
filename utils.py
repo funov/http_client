@@ -27,14 +27,21 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version, user_
     for img_url in image_links:
         img_url = img_url if img_url.startswith('http') else cmd_commands_url + img_url
 
-        response_img = HTTPClient.http_request(
-            img_url,
-            'GET',
-            http_version,
-            None,
-            None,
-            user_agent
-        )
+        try:
+            response_img = HTTPClient.http_request(
+                img_url,
+                'GET',
+                http_version,
+                None,
+                None,
+                user_agent
+            )
+        except ValueError:
+            print(f'Не удалось отправить запрос\nДанные:\n{img_url = }\nhttp_method = GET\n{http_version = }')
+            return None
+        except OSError:
+            print('Не удалось отправить запрос, проблема с сокетом, попробуйте отправить запрос снова')
+            return None
 
         image_name = img_url.split('/')[-1]
 
@@ -51,14 +58,21 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version, user_
 
 
 def write_http_response(url, http_method, http_version, headers, send_dt, user_agent):
-    response = HTTPClient.http_request(
-        url,
-        http_method,
-        http_version,
-        headers,
-        send_dt,
-        user_agent
-    )
+    try:
+        response = HTTPClient.http_request(
+            url,
+            http_method,
+            http_version,
+            headers,
+            send_dt,
+            user_agent
+        )
+    except ValueError:
+        print(f'Не удалось отправить запрос\nДанные:\n{url = }\n{http_method = }\n{http_version = }')
+        return None
+    except OSError:
+        print('Не удалось отправить запрос, проблема с сокетом, попробуйте отправить запрос снова')
+        return None
 
     if "Content-Type" in response.headers.keys():
         content_type = response.headers['Content-Type'].replace(';', '/').split('/')

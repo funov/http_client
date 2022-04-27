@@ -19,13 +19,7 @@ class HTTPClient:
 
         s = ssl.wrap_socket(socket.socket()) if request.port == 443 else socket.socket()
 
-        try:
-            s.connect((request.host, request.port))
-        except OSError:
-            print(f"Не удалось подключиться к сокету, данные:"
-                  f"\n{url = }\n{http_method = }\n{request.host = }\n{request.port = }")
-
-            return None
+        s.connect((request.host, request.port))
 
         s.sendall(str(request).encode())
 
