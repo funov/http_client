@@ -1,7 +1,7 @@
+import os
+import datetime as dt
 from html_parser import HTMLImageLinksParser
 from network import HTTPClient
-import datetime as dt
-import os
 
 
 def write_image(path, bytes_response, all_bytes_count, headers_bytes_count):

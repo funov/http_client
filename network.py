@@ -1,6 +1,6 @@
 import socket
-from urllib.parse import urlsplit
 import ssl
+from urllib.parse import urlsplit
 
 
 class HTTPClient:

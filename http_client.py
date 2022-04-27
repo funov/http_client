@@ -35,8 +35,13 @@ def main():
     parser = create_parser()
     cmd_commands = parser.parse_args()
 
-    utils.write_http_response(cmd_commands.url, cmd_commands.http_method, cmd_commands.http_version,
-                              cmd_commands.headers, cmd_commands.send_dt)
+    try:
+        utils.write_http_response(cmd_commands.url, cmd_commands.http_method, cmd_commands.http_version,
+                                  cmd_commands.headers, cmd_commands.send_dt)
+    except OSError:
+        print('Что-то пошло не так, попробуйте снова')
+    except RuntimeError:
+        print('Что-то пошло не так, напишите разработчикам')
 
 
 if __name__ == '__main__':
