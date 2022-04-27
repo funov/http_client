@@ -15,7 +15,7 @@ def write_file(path, decoded_response):
             t.write(decoded_response)
 
 
-def write_all_images_from_html(body, time, cmd_commands_url, http_version):
+def write_all_images_from_html(body, time, cmd_commands_url, http_version, user_agent):
     image_links_parser = HTMLImageLinksParser()
     image_links_parser.feed(body)
 
@@ -32,7 +32,8 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version):
             'GET',
             http_version,
             None,
-            None
+            None,
+            user_agent
         )
 
         image_name = img_url.split('/')[-1]
@@ -49,13 +50,14 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version):
                         int(response_img.headers['Content-Length']))
 
 
-def write_http_response(url, http_method, http_version, headers, send_dt):
+def write_http_response(url, http_method, http_version, headers, send_dt, user_agent):
     response = HTTPClient.http_request(
         url,
         http_method,
         http_version,
         headers,
-        send_dt
+        send_dt,
+        user_agent
     )
 
     if "Content-Type" in response.headers.keys():
@@ -74,7 +76,7 @@ def write_http_response(url, http_method, http_version, headers, send_dt):
             write_file(os.path.join(time, f"result.{content_type[1]}"), response.body)
 
         if http_method == 'GET' and content_type[1] == 'html':
-            write_all_images_from_html(response.body, time, url, http_version)
+            write_all_images_from_html(response.body, time, url, http_version, user_agent)
 
     elif content_type is not None and content_type[0] == 'image':
         write_file(os.path.join(time, "headers.txt"), response.inf + '\n' + str(response.headers))

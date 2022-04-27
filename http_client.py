@@ -27,6 +27,14 @@ def create_parser():
                         help='Данные для отправки по HTTP, только для POST или PUT, отправлять в формате "data"',
                         type=str,
                         default=None)
+    parser.add_argument('--user_agent',
+                        '-ua',
+                        help='Выберите браузер, user-agent которого будет использоваться в запросах, если вы'
+                             'указали в headers user-agent и еще выбрали тут браузер, приоритет будет'
+                             'отдан headers',
+                        type=str,
+                        choices=['Chrome', 'Firefox', 'Edge', 'Opera'],
+                        default=None)
 
     return parser
 
@@ -37,7 +45,7 @@ def main():
 
     try:
         utils.write_http_response(cmd_commands.url, cmd_commands.http_method, cmd_commands.http_version,
-                                  cmd_commands.headers, cmd_commands.send_dt)
+                                  cmd_commands.headers, cmd_commands.send_dt, cmd_commands.user_agent)
     except OSError:
         print('Что-то пошло не так, попробуйте снова')
     except RuntimeError:
