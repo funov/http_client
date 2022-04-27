@@ -4,7 +4,7 @@
 ## Описание
 Консольный HTTP Client, который может отправлять GET, HEAD, POST, PUT запросы и принимать ответы сервера.
 Результат это файл с заголовками ответа, сам полученный файл и изображения полученные из него
-по прямым ссылкам. 
+по прямым ссылкам. Поддерживает редирект и выбор user-agent.
 
 Дополнительная информация в help по команде: `http_client -h`
 
@@ -15,11 +15,13 @@
 * Запуск из `http_client.py`
 * Работа с сетью: `network.py`
 * Тесты: `tests.py`
-* Запись файлов: `utils.py`
+* Запись файлов и прочее: `utils.py`
 
 ## Примеры верных команд
 
 http_client https://www.python.org GET
+
+http_client https://www.python.org GET -ua Firefox
 
 http_client https://www.python.org GET -v 1.1 -he "Connection: Keep-Alive, Accept-Language: fr"
 
