@@ -46,9 +46,10 @@ def main():
         cmd_commands.send_dt
     )
 
-    content_type = response.headers['Content-Type'].replace(';', '/').split('/') \
-        if "Content-Type" in response.headers.keys() \
-        else None
+    if "Content-Type" in response.headers.keys():
+        content_type = response.headers['Content-Type'].replace(';', '/').split('/')
+    else:
+        content_type = None
 
     time = dt.datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
 

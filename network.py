@@ -80,9 +80,10 @@ class HTTPRequest:
 
         request = '\r\n'.join(request_data)
 
-        return request + self.sending_data \
-            if self.http_method in ['POST', 'PUT'] and self.sending_data is not None \
-            else request
+        if self.http_method in ['POST', 'PUT'] and self.sending_data is not None:
+            return request + self.sending_data
+        else:
+            return request
 
 
 class HTTPResponse:
