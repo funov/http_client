@@ -31,7 +31,7 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version, user_
 
         image_name = img_url.split('/')[-1]
 
-        if "Content-Type" not in response_img.headers.keys():
+        if response_img is None or "Content-Type" not in response_img.headers.keys():
             return None
 
         content_type_img = response_img.headers["Content-Type"].replace(";", "/").split("/")[0]
