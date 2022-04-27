@@ -1,5 +1,6 @@
 from html_parser import HTMLImageLinksParser
 from network import HTTPClient
+import datetime as dt
 import os
 
 
@@ -46,3 +47,43 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version):
                         response_img.bytes_response,
                         len(response_img.bytes_response),
                         int(response_img.headers['Content-Length']))
+
+
+def write_http_response(url, http_method, http_version, headers, send_dt):
+    response = HTTPClient.http_request(
+        url,
+        http_method,
+        http_version,
+        headers,
+        send_dt
+    )
+
+    if "Content-Type" in response.headers.keys():
+        content_type = response.headers['Content-Type'].replace(';', '/').split('/')
+    else:
+        content_type = None
+
+    time = dt.datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
+
+    os.mkdir(time)
+
+    if content_type is not None and content_type[0] == 'text':
+        write_file(os.path.join(time, "headers.txt"), response.inf + '\n' + str(response.headers))
+
+        if http_method != "HEAD":
+            write_file(os.path.join(time, f"result.{content_type[1]}"), response.body)
+
+        if http_method == 'GET' and content_type[1] == 'html':
+            write_all_images_from_html(response.body, time, url, http_version)
+
+    elif content_type is not None and content_type[0] == 'image':
+        write_file(os.path.join(time, "headers.txt"), response.inf + '\n' + str(response.headers))
+
+        image_name = url.split('/')[-1]
+
+        write_image(f'{time}/{image_name}',
+                    response.bytes_response,
+                    len(response.bytes_response),
+                    int(response.headers['Content-Length']))
+    else:
+        write_file(os.path.join(time, "result.txt"), response.decoded_response)
