@@ -94,12 +94,8 @@ def send_request_with_errors_handling(url, http_method, http_version, headers, s
         print('Не удалось отправить запрос, проблема с сокетом, попробуйте отправить запрос снова')
         return None
 
-    if response.inf.split()[1][0] == '3' and 'Location:' in response.decoded_response:
-        start_location_ind = response.decoded_response.find('Location:')
-        end_location_ind = response.decoded_response[start_location_ind:].find('\n')
-
-        location = response.decoded_response[start_location_ind:][:end_location_ind]
-        url = location.split(': ')[1]
+    if response.inf.split()[1][0] == '3' and 'Location' in response.headers.keys():
+        url = response.headers['Location']
 
         print(f"Перенаправлено на {url}")
 
