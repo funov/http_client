@@ -46,7 +46,7 @@ def write_all_images_from_html(body, time, cmd_commands_url, http_version, user_
 def write_http_response(url, http_method, http_version, headers, send_dt, user_agent):
     response = send_request_with_errors_handling(url, http_method, http_version, headers, send_dt, user_agent)
 
-    if "Content-Type" in response.headers.keys():
+    if response is not None and "Content-Type" in response.headers.keys():
         content_type = response.headers['Content-Type'].replace(';', '/').split('/')
     else:
         content_type = None
