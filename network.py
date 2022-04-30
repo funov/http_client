@@ -70,7 +70,8 @@ class HTTPRequest:
         else:
             self.host = None
 
-        if user_agent is not None and (headers is None or 'User-Agent:' not in headers):
+        if user_agent is not None \
+                and (headers is None or 'User-Agent:' not in headers):
             self.user_agent = HTTPClient.user_agents[user_agent]
         else:
             self.user_agent = None

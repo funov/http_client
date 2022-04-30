@@ -1,5 +1,6 @@
 import unittest
-from network import HTTPRequest
+from network import HTTPRequest, HTTPResponse
+from html_parser import HTMLImageLinksParser
 
 
 class GETRequestTests(unittest.TestCase):
@@ -210,3 +211,70 @@ class PUTRequestTests(unittest.TestCase):
         result3 = str(self.request3)
 
         self.assertEqual(self.expected_result3, result3)
+
+
+class HTTPResponseTests(unittest.TestCase):
+    def setUp(self):
+        self.decoded_response = 'HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 ' \
+                                '12:28:53 GMT\r\nServer: Apache/2.2.14 ' \
+                                '(Win32)\r\nLast-Modified: Wed, 22 Jul ' \
+                                '2009 19:15:56 GMT\r\nContent-Length: 88' \
+                                '\r\nContent-Type: text/html\r\n' \
+                                'Connection: Closed\r\n\r\n<!doctype html>' \
+                                '\r\n<html>\r\n<body>\r\n<h1>Hello, ' \
+                                'World!</h1>\r\n</body>\r\n</html>'
+        self.bytes_response = self.decoded_response.encode()
+
+        self.expected_inf = "HTTP/1.1 200 OK"
+        self.expected_headers = {
+            'Date': 'Mon, 27 Jul 2009 12:28:53 GMT',
+            'Server': 'Apache/2.2.14 (Win32)',
+            'Last-Modified': 'Wed, 22 Jul 2009 19:15:56 GMT',
+            'Content-Length': '88',
+            'Content-Type': 'text/html',
+            'Connection': 'Closed'
+        }
+        self.expected_body = '<!doctype html>\r\n<html>\r\n<body>\r\n' \
+                             '<h1>Hello, World!</h1>\r\n</body>\r\n</html>'
+
+    def test_decoded_response(self):
+        response = HTTPResponse(self.decoded_response, self.bytes_response)
+
+        self.assertEqual(self.decoded_response, response.decoded_response)
+
+    def test_bytes_response(self):
+        response = HTTPResponse(self.decoded_response, self.bytes_response)
+
+        self.assertEqual(self.bytes_response, response.bytes_response)
+
+    def test_inf(self):
+        response = HTTPResponse(self.decoded_response, self.bytes_response)
+
+        self.assertEqual(self.expected_inf, response.inf)
+
+    def test_headers(self):
+        response = HTTPResponse(self.decoded_response, self.bytes_response)
+
+        self.assertEqual(self.expected_headers, response.headers)
+
+    def test_body(self):
+        response = HTTPResponse(self.decoded_response, self.bytes_response)
+
+        self.assertEqual(self.expected_body, response.body)
+
+
+class HTMLParserTests(unittest.TestCase):
+    def setUp(self):
+        self.html = '<!doctype html>\r\n<html>\r\n<body>\r\n' \
+                    '<img src="http://python.org" alt="some text2">' \
+                    '\r\n<h1>Hello, World!</h1>\r\n' \
+                    '<img src="http://example.com" alt="some text1">' \
+                    '\r\n</body>\r\n</html>'
+        self.expected_result = ['http://python.org', 'http://example.com']
+
+    def test_basic_html(self):
+        image_links_parser = HTMLImageLinksParser()
+        image_links_parser.feed(self.html)
+
+        image_links = image_links_parser.images
+        self.assertEqual(self.expected_result, image_links)
