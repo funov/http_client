@@ -23,6 +23,12 @@ http_client https://www.python.org GET
 
 http_client https://www.python.org GET -ua Firefox
 
+http_client https://www.python-httpx.org/ GET -ua Firefox
+
+http_client https://youtube.com GET -ua Firefox
+
+http_client https://eo2c8drt9txj96k.m.pipedream.net POST -d Hello -ua Firefox
+
 http_client https://www.python.org GET -v 1.1 -he "Connection: Keep-Alive, Accept-Language: fr"
 
 http_client https://www.python.org POST

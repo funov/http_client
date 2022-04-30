@@ -5,19 +5,32 @@ from urllib.parse import urlsplit
 
 class HTTPClient:
     user_agents = {
-        'Chrome': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 '
+        'Chrome': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) '
+                  'AppleWebKit/537.36 '
                   '(KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36',
-        'Firefox': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:101.0) Gecko/20100101 Firefox/101.0',
-        'Edge': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+        'Firefox': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:101.0) '
+                   'Gecko/20100101 Firefox/101.0',
+        'Edge': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                'AppleWebKit/537.36 (KHTML, like Gecko) '
                 'Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582',
-        'Opera': 'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16.2'
+        'Opera': 'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) '
+                 'Presto/2.12.388 Version/12.16.2'
     }
 
     @staticmethod
-    def http_request(url, http_method, http_version, headers, sending_data, user_agent):
-        request = HTTPRequest(url, http_method, http_version, headers, sending_data, user_agent)
+    def http_request(url, http_method, http_version, headers,
+                     sending_data, user_agent):
+        request = HTTPRequest(url,
+                              http_method,
+                              http_version,
+                              headers,
+                              sending_data,
+                              user_agent)
 
-        s = ssl.wrap_socket(socket.socket()) if request.port == 443 else socket.socket()
+        if request.port == 443:
+            s = ssl.wrap_socket(socket.socket())
+        else:
+            s = socket.socket()
 
         s.connect((request.host, request.port))
 
@@ -41,16 +54,26 @@ class HTTPClient:
 
 
 class HTTPRequest:
-    def __init__(self, url, http_method, http_version, headers, sending_data, user_agent):
+    def __init__(self, url, http_method, http_version, headers,
+                 sending_data, user_agent):
         url_parts = urlsplit(url)
-        self.path = url_parts.path if len(url_parts.path) == 0 or url_parts.path[0] != '/' else url_parts.path[1:]
+
+        if len(url_parts.path) == 0 or url_parts.path[0] != '/':
+            self.path = url_parts.path
+        else:
+            self.path = url_parts.path[1:]
 
         self.headers = headers.split(', ') if headers is not None else None
 
-        self.host = url_parts.netloc if headers is None or 'Host:' not in headers else None
+        if headers is None or 'Host:' not in headers:
+            self.host = url_parts.netloc
+        else:
+            self.host = None
 
-        self.user_agent = HTTPClient.user_agents[user_agent] if user_agent is not None else None
-        self.user_agent = self.user_agent if headers is None or 'User-Agent:' not in headers else None
+        if user_agent is not None and (headers is None or 'User-Agent:' not in headers):
+            self.user_agent = HTTPClient.user_agents[user_agent]
+        else:
+            self.user_agent = None
 
         if url_parts.scheme not in ('http', 'https'):
             raise ValueError(f'Incorrect url {url}, expected http or https')
@@ -72,10 +95,14 @@ class HTTPRequest:
             if self.user_agent is not None:
                 request_data += [f'User-Agent: {self.user_agent}']
 
-            if self.http_method in ['POST', 'PUT'] and self.sending_data is not None:
-                request_data.append(f'Content-Length: {len(self.sending_data.encode())}')
+            if self.http_method in ['POST', 'PUT'] \
+                    and self.sending_data is not None:
+                content_length = len(self.sending_data.encode())
+                request_data.append(f'Content-Length: {content_length}')
         else:
-            request_data = [f'{self.http_method} /{self.path} HTTP/{self.http_version}']
+            first_http_line = f'{self.http_method} /{self.path} ' \
+                              f'HTTP/{self.http_version}'
+            request_data = [first_http_line]
 
             if self.host is not None:
                 request_data += [f'Host: {self.host}']
@@ -85,15 +112,19 @@ class HTTPRequest:
 
             request_data += self.headers
 
+            headers_keys = [x.split(':')[0] for x in self.headers]
+
             if self.http_method in ['POST', 'PUT'] \
-                    and 'Content-Length' not in [x for x in self.sending_data.split(':')]:
-                request_data.append(f'Content-Length: {len(self.sending_data.encode())}')
+                    and 'Content-Length' not in headers_keys:
+                content_length = len(self.sending_data.encode())
+                request_data.append(f'Content-Length: {content_length}')
 
         request_data.append('\r\n')
 
         request = '\r\n'.join(request_data)
 
-        if self.http_method in ['POST', 'PUT'] and self.sending_data is not None:
+        if self.http_method in ['POST', 'PUT'] \
+                and self.sending_data is not None:
             return request + self.sending_data
         else:
             return request
@@ -107,7 +138,15 @@ class HTTPResponse:
         d_response = decoded_response[0].split('\r\n')
 
         self.inf = d_response[0]
-        self.headers = {r.split(': ', 1)[0]: r.split(': ', 1)[1] for r in d_response[1:]}
 
-        self.body = decoded_response[1] if len(decoded_response) == 2 else None
+        self.headers = {}
+        for r in d_response[1:]:
+            header_with_value = r.split(': ', 1)
+            self.headers[header_with_value[0]] = header_with_value[1]
+
+        if len(decoded_response) == 2:
+            self.body = decoded_response[1]
+        else:
+            self.body = None
+
         self.bytes_response = bytes_response
