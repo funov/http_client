@@ -104,6 +104,9 @@ def write_http_response(url, http_method, http_version, headers,
 
         image_name = url.split('/')[-1]
 
+        if "Content-Length" not in response.headers.keys():
+            return None
+
         img_response = get_img_response(response.bytes_response, response.headers)
         write_image(f'{time}/{image_name}', img_response)
     elif response.decoded_response is not None:

@@ -1,4 +1,5 @@
 import unittest
+import utils
 from network import HTTPRequest, HTTPResponse
 from html_parser import HTMLImageLinksParser
 
@@ -280,9 +281,14 @@ class HTMLParserTests(unittest.TestCase):
         self.assertEqual(self.expected_result, image_links)
 
 
-class WriteFilesTests(unittest.TestCase):
+class UtilsTests(unittest.TestCase):
     def setUp(self):
-        pass
+        self.expected1 = b'efg'
+
+    def test_get_img_response(self):
+        headers = {'Content-Length': 3}
+        actual = utils.get_img_response(b'abcdefg', headers)
+        self.assertEqual(self.expected1, actual)
 
     def test_write_image(self):
         pass
