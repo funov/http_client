@@ -1,5 +1,6 @@
 import os
 import datetime as dt
+from io import StringIO
 from html_parser import HTMLImageLinksParser
 from network import HTTPClient
 
@@ -40,7 +41,7 @@ def write_all_images_from_html(body, time, cmd_commands_url,
 
         if response_img is None \
                 or "Content-Type" not in response_img.headers.keys():
-            return None
+            continue
 
         content_type_header = response_img.headers["Content-Type"]
         content_type_img = content_type_header.replace(";", "/").split("/")[0]

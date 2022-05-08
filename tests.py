@@ -278,3 +278,20 @@ class HTMLParserTests(unittest.TestCase):
 
         image_links = image_links_parser.images
         self.assertEqual(self.expected_result, image_links)
+
+
+class WriteFilesTests(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_write_image(self):
+        pass
+
+    def test_write_file(self):
+        pass
+
+    def test_write_all_images_from_html(self):
+        pass
+
+    def test_write_http_response(self):
+        pass
