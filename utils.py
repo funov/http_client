@@ -38,12 +38,13 @@ def write_all_images_from_html(body, time, cmd_commands_url,
         if not img_url.startswith('http'):
             img_url = cmd_commands_url + img_url
 
-        response_img = HTTPClient.http_request_with_errors_handling(img_url,
-                                                                    'GET',
-                                                                    http_version,
-                                                                    None,
-                                                                    None,
-                                                                    user_agent)
+        response_img = HTTPClient.http_request_with_errors_handling(
+            img_url,
+            'GET',
+            http_version,
+            None,
+            None,
+            user_agent)
 
         image_name = img_url.split('/')[-1]
 
@@ -63,12 +64,13 @@ def write_all_images_from_html(body, time, cmd_commands_url,
 
 def write_http_response(url, http_method, http_version, headers,
                         send_dt, user_agent):
-    response = HTTPClient.http_request_with_errors_handling(url,
-                                                            http_method,
-                                                            http_version,
-                                                            headers,
-                                                            send_dt,
-                                                            user_agent)
+    response = HTTPClient.http_request_with_errors_handling(
+        url,
+        http_method,
+        http_version,
+        headers,
+        send_dt,
+        user_agent)
 
     if response is not None and "Content-Type" in response.headers.keys():
         content_type_header = response.headers['Content-Type']
@@ -91,11 +93,12 @@ def write_http_response(url, http_method, http_version, headers,
                        response.body)
 
         if http_method == 'GET' and content_type[1] == 'html':
-            write_all_images_from_html(response.body,
-                                       time,
-                                       url,
-                                       http_version,
-                                       user_agent)
+            write_all_images_from_html(
+                response.body,
+                time,
+                url,
+                http_version,
+                user_agent)
     elif content_type is not None and content_type[0] == 'image':
         decoded_response = response.inf + '\n' + str(response.headers)
 

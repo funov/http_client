@@ -20,12 +20,13 @@ class HTTPClient:
     @staticmethod
     def http_request(url, http_method, http_version, headers,
                      sending_data, user_agent):
-        request = HTTPRequest(url,
-                              http_method,
-                              http_version,
-                              headers,
-                              sending_data,
-                              user_agent)
+        request = HTTPRequest(
+            url,
+            http_method,
+            http_version,
+            headers,
+            sending_data,
+            user_agent)
 
         if request.port == 443:
             s = ssl.wrap_socket(socket.socket())
@@ -70,12 +71,13 @@ class HTTPClient:
 
             print(f"Перенаправлено на {url}")
 
-            response = HTTPClient.http_request_with_redirects(url,
-                                                              http_method,
-                                                              http_version,
-                                                              headers,
-                                                              send_dt,
-                                                              user_agent)
+            response = HTTPClient.http_request_with_redirects(
+                url,
+                http_method,
+                http_version,
+                headers,
+                send_dt,
+                user_agent)
 
         return response
 
@@ -83,12 +85,13 @@ class HTTPClient:
     def http_request_with_errors_handling(url, http_method, http_version,
                                           headers, send_dt, user_agent):
         try:
-            response = HTTPClient.http_request_with_redirects(url,
-                                                              http_method,
-                                                              http_version,
-                                                              headers,
-                                                              send_dt,
-                                                              user_agent)
+            response = HTTPClient.http_request_with_redirects(
+                url,
+                http_method,
+                http_version,
+                headers,
+                send_dt,
+                user_agent)
         except ValueError:
             print(f'Не удалось отправить запрос\nДанные:'
                   f'\n{url = }\n{http_method = }\n{http_version = }')
