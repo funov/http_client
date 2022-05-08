@@ -52,6 +52,54 @@ class HTTPClient:
 
         return HTTPResponse(decoded_response, bytes_response)
 
+    @staticmethod
+    def http_request_with_redirects(url, http_method, http_version,
+                                    headers, send_dt, user_agent):
+        response = HTTPClient.http_request(
+            url,
+            http_method,
+            http_version,
+            headers,
+            send_dt,
+            user_agent
+        )
+
+        if response.inf.split()[1][0] == '3' \
+                and 'Location' in response.headers.keys():
+            url = response.headers['Location']
+
+            print(f"Перенаправлено на {url}")
+
+            response = HTTPClient.http_request_with_redirects(url,
+                                                              http_method,
+                                                              http_version,
+                                                              headers,
+                                                              send_dt,
+                                                              user_agent)
+
+        return response
+
+    @staticmethod
+    def http_request_with_errors_handling(url, http_method, http_version,
+                                          headers, send_dt, user_agent):
+        try:
+            response = HTTPClient.http_request_with_redirects(url,
+                                                              http_method,
+                                                              http_version,
+                                                              headers,
+                                                              send_dt,
+                                                              user_agent)
+        except ValueError:
+            print(f'Не удалось отправить запрос\nДанные:'
+                  f'\n{url = }\n{http_method = }\n{http_version = }')
+        except OSError:
+            print('Не удалось отправить запрос, проблема с сокетом, '
+                  'попробуйте отправить запрос снова')
+        except RecursionError:
+            print('Похоже в вашем запросе было слишкм много редиректов')
+        else:
+            return response
+
 
 class HTTPRequest:
     def __init__(self, url, http_method, http_version, headers,

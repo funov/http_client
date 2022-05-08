@@ -38,12 +38,12 @@ def write_all_images_from_html(body, time, cmd_commands_url,
         if not img_url.startswith('http'):
             img_url = cmd_commands_url + img_url
 
-        response_img = send_request_with_errors_handling(img_url,
-                                                         'GET',
-                                                         http_version,
-                                                         None,
-                                                         None,
-                                                         user_agent)
+        response_img = HTTPClient.http_request_with_errors_handling(img_url,
+                                                                    'GET',
+                                                                    http_version,
+                                                                    None,
+                                                                    None,
+                                                                    user_agent)
 
         image_name = img_url.split('/')[-1]
 
@@ -63,12 +63,12 @@ def write_all_images_from_html(body, time, cmd_commands_url,
 
 def write_http_response(url, http_method, http_version, headers,
                         send_dt, user_agent):
-    response = send_request_with_errors_handling(url,
-                                                 http_method,
-                                                 http_version,
-                                                 headers,
-                                                 send_dt,
-                                                 user_agent)
+    response = HTTPClient.http_request_with_errors_handling(url,
+                                                            http_method,
+                                                            http_version,
+                                                            headers,
+                                                            send_dt,
+                                                            user_agent)
 
     if response is not None and "Content-Type" in response.headers.keys():
         content_type_header = response.headers['Content-Type']
@@ -109,39 +109,3 @@ def write_http_response(url, http_method, http_version, headers,
     elif response.decoded_response is not None:
         write_file(os.path.join(time, "result.txt"),
                    response.decoded_response)
-
-
-def send_request_with_errors_handling(url, http_method, http_version,
-                                      headers, send_dt, user_agent):
-    try:
-        response = HTTPClient.http_request(
-            url,
-            http_method,
-            http_version,
-            headers,
-            send_dt,
-            user_agent
-        )
-    except ValueError:
-        print(f'Не удалось отправить запрос\nДанные:'
-              f'\n{url = }\n{http_method = }\n{http_version = }')
-        return None
-    except OSError:
-        print('Не удалось отправить запрос, проблема с сокетом, '
-              'попробуйте отправить запрос снова')
-        return None
-
-    if response.inf.split()[1][0] == '3' \
-            and 'Location' in response.headers.keys():
-        url = response.headers['Location']
-
-        print(f"Перенаправлено на {url}")
-
-        response = send_request_with_errors_handling(url,
-                                                     http_method,
-                                                     http_version,
-                                                     headers,
-                                                     send_dt,
-                                                     user_agent)
-
-    return response
