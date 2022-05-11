@@ -1,6 +1,5 @@
 import os
 import datetime as dt
-from io import StringIO
 from html_parser import HTMLImageLinksParser
 from network import HTTPClient
 

@@ -290,12 +290,6 @@ class UtilsTests(unittest.TestCase):
         actual = utils.get_img_response(b'abcdefg', headers)
         self.assertEqual(self.expected1, actual)
 
-    def test_write_image(self):
-        pass
-
-    def test_write_file(self):
-        pass
-
     def test_write_all_images_from_html(self):
         pass
 
