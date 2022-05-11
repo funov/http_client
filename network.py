@@ -187,19 +187,19 @@ class HTTPResponse:
         self.decoded_response = decoded_response
 
         decoded_response = decoded_response.split('\r\n\r\n', 1)
-        splitted_head = decoded_response[0].split('\r\n')
+        head_split = decoded_response[0].split('\r\n')
 
         self.head = decoded_response[0]
 
-        self.information = splitted_head[0]
+        self.information = head_split[0]
 
         self.headers_dict = {}
 
-        for r in splitted_head[1:]:
+        for r in head_split[1:]:
             header_with_value = r.split(': ', 1)
             self.headers_dict[header_with_value[0]] = header_with_value[1]
 
-        if len(decoded_response) == 2:
+        if len(decoded_response) == 2 and decoded_response[1] != '':
             self.body = decoded_response[1]
         else:
             self.body = None

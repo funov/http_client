@@ -29,6 +29,27 @@ class GETRequestTests(unittest.TestCase):
             None,
             "Test message",
             'Firefox')
+        self.request4 = HTTPRequest(
+            "https://example.com/page1",
+            "GET",
+            1.1,
+            None,
+            None,
+            'Firefox')
+        self.request5 = HTTPRequest(
+            "https://example.com",
+            "GET",
+            1.1,
+            "Host: Test",
+            None,
+            None)
+        self.request6 = HTTPRequest(
+            "https://example.com",
+            "GET",
+            1.1,
+            "Connection: Keep-Alive",
+            None,
+            'Firefox')
 
         self.expected_result1 = 'GET / HTTP/1.1\r\nHost: example.com\r\n' \
                                 'Connection: close\r\n' \
@@ -42,6 +63,18 @@ class GETRequestTests(unittest.TestCase):
                                 'User-Agent: Mozilla/5.0 (Macintosh; ' \
                                 'Intel Mac OS X 10.15; rv:101.0) ' \
                                 'Gecko/20100101 Firefox/101.0\r\n\r\n'
+        self.expected_result4 = 'GET /page1 HTTP/1.1\r\n' \
+                                'Host: example.com\r\n' \
+                                'Connection: close\r\n' \
+                                'User-Agent: Mozilla/5.0 (Macintosh; ' \
+                                'Intel Mac OS X 10.15; rv:101.0) ' \
+                                'Gecko/20100101 Firefox/101.0\r\n\r\n'
+        self.expected_result5 = 'GET / HTTP/1.1\r\nHost: Test\r\n\r\n'
+        self.expected_result6 = 'GET / HTTP/1.1\r\nHost: example.com\r\n' \
+                                'User-Agent: Mozilla/5.0 (Macintosh; ' \
+                                'Intel Mac OS X 10.15; rv:101.0) ' \
+                                'Gecko/20100101 Firefox/101.0' \
+                                '\r\nConnection: Keep-Alive\r\n\r\n'
 
     def test_default_headers(self):
         result1 = str(self.request1)
@@ -57,6 +90,30 @@ class GETRequestTests(unittest.TestCase):
         result3 = str(self.request3)
 
         self.assertEqual(self.expected_result3, result3)
+
+    def test_not_empty_url_parts(self):
+        result4 = str(self.request4)
+
+        self.assertEqual(self.expected_result4, result4)
+
+    def test_request_without_host(self):
+        result5 = str(self.request5)
+
+        self.assertEqual(self.expected_result5, result5)
+
+    def test_incorrect_url(self):
+        self.assertRaises(ValueError, lambda: HTTPRequest(
+            "httpss://example.com",
+            "GET",
+            1.1,
+            None,
+            None,
+            None))
+
+    def test_user_agent_parameter(self):
+        result6 = str(self.request6)
+
+        self.assertEqual(self.expected_result6, result6)
 
 
 class POSTRequestTests(unittest.TestCase):
@@ -230,14 +287,20 @@ class PUTRequestTests(unittest.TestCase):
 
 class HTTPResponseTests(unittest.TestCase):
     def setUp(self):
-        self.expected_decoded_response = 'HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 ' \
-                                '12:28:53 GMT\r\nServer: Apache/2.2.14 ' \
-                                '(Win32)\r\nLast-Modified: Wed, 22 Jul ' \
-                                '2009 19:15:56 GMT\r\nContent-Length: 88' \
-                                '\r\nContent-Type: text/html\r\n' \
-                                'Connection: Closed\r\n\r\n<!doctype html>' \
-                                '\r\n<html>\r\n<body>\r\n<h1>Hello, ' \
-                                'World!</h1>\r\n</body>\r\n</html>'
+        self.expected_decoded_response = 'HTTP/1.1 200 OK\r\n' \
+                                         'Date: Mon, 27 Jul 2009 ' \
+                                          '12:28:53 GMT\r\n' \
+                                         'Server: Apache/2.2.14 ' \
+                                          '(Win32)\r\n' \
+                                         'Last-Modified: Wed, 22 Jul ' \
+                                          '2009 19:15:56 GMT\r\n' \
+                                         'Content-Length: 88' \
+                                          '\r\nContent-Type: text/html\r\n' \
+                                          'Connection: Closed' \
+                                         '\r\n\r\n<!doctype html>' \
+                                          '\r\n<html>\r\n<body>' \
+                                         '\r\n<h1>Hello, ' \
+                                          'World!</h1>\r\n</body>\r\n</html>'
         self.expected_bytes_response = self.expected_decoded_response.encode()
         self.expected_information = "HTTP/1.1 200 OK"
         self.expected_headers_dict = {
@@ -248,8 +311,8 @@ class HTTPResponseTests(unittest.TestCase):
             'Content-Type': 'text/html',
             'Connection': 'Closed'
         }
-        self.expected_body = '<!doctype html>\r\n<html>\r\n<body>\r\n' \
-                             '<h1>Hello, World!</h1>\r\n</body>\r\n</html>'
+        self.expected_body1 = '<!doctype html>\r\n<html>\r\n<body>\r\n' \
+                              '<h1>Hello, World!</h1>\r\n</body>\r\n</html>'
         self.expected_head = 'HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 ' \
                              '12:28:53 GMT\r\nServer: Apache/2.2.14 ' \
                              '(Win32)\r\nLast-Modified: Wed, 22 Jul ' \
@@ -257,25 +320,53 @@ class HTTPResponseTests(unittest.TestCase):
                              '\r\nContent-Type: text/html\r\n' \
                              'Connection: Closed'
 
-        self.response = HTTPResponse(self.expected_decoded_response, self.expected_bytes_response)
+        self.expected_decoded_response2 = 'HTTP/1.1 200 OK\r\n' \
+                                          'Date: Mon, 27 Jul 2009 ' \
+                                          '12:28:53 GMT\r\n' \
+                                          'Server: Apache/2.2.14 ' \
+                                          '(Win32)\r\n' \
+                                          'Last-Modified: Wed, 22 Jul ' \
+                                          '2009 19:15:56 GMT\r\n' \
+                                          'Content-Length: 88' \
+                                          '\r\nContent-Type: text/html\r\n' \
+                                          'Connection: Closed\r\n\r\n'
+        self.expected_body2 = None
+
+        self.response1 = HTTPResponse(
+            self.expected_decoded_response,
+            self.expected_bytes_response)
+        self.response2 = HTTPResponse(
+            self.expected_decoded_response2,
+            self.expected_decoded_response2.encode())
 
     def test_decoded_response(self):
-        self.assertEqual(self.expected_decoded_response, self.response.decoded_response)
+        self.assertEqual(
+            self.expected_decoded_response,
+            self.response1.decoded_response)
 
     def test_bytes_response(self):
-        self.assertEqual(self.expected_bytes_response, self.response.bytes_response)
+        self.assertEqual(
+            self.expected_bytes_response,
+            self.response1.bytes_response)
 
     def test_information(self):
-        self.assertEqual(self.expected_information, self.response.information)
+        self.assertEqual(
+            self.expected_information,
+            self.response1.information)
 
     def test_headers_dict(self):
-        self.assertEqual(self.expected_headers_dict, self.response.headers_dict)
+        self.assertEqual(
+            self.expected_headers_dict,
+            self.response1.headers_dict)
 
     def test_body(self):
-        self.assertEqual(self.expected_body, self.response.body)
+        self.assertEqual(self.expected_body1, self.response1.body)
 
     def test_head(self):
-        self.assertEqual(self.expected_head, self.response.head)
+        self.assertEqual(self.expected_head, self.response1.head)
+
+    def test_empty_body(self):
+        self.assertEqual(self.expected_body2, self.response2.body)
 
 
 class HTMLParserTests(unittest.TestCase):
@@ -305,9 +396,14 @@ class UtilsTests(unittest.TestCase):
                 'Connection: Closed\r\n\r\n'
         image2 = '123efg'
         decoded_response2 = head2 + image2
-        self.response2 = HTTPResponse(decoded_response2, decoded_response2.encode())
+        self.response2 = HTTPResponse(
+            decoded_response2,
+            decoded_response2.encode())
         self.expected_write_data2 = [head2[:-4], image2.encode()]
-        self.expected_folder_info2 = [(os.path.join('folder_name', 'headers.txt'), 'w'), (os.path.join('folder_name', 'some_image.png'), 'wb')]
+        self.expected_folder_info2 = [
+            (os.path.join('folder_name', 'headers.txt'), 'w'),
+            (os.path.join('folder_name', 'some_image.png'), 'wb')
+        ]
 
         self.image_name_to_image_bytes = {
             "image1.png": b'1234',
@@ -320,27 +416,61 @@ class UtilsTests(unittest.TestCase):
             (os.path.join('folder_name', 'image', 'image2.png'), 'wb'),
             (os.path.join('folder_name', 'image', 'image3.png'), 'wb')]
 
+        head4 = 'HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 ' \
+                '12:28:53 GMT\r\nServer: Apache/2.2.14 ' \
+                '(Win32)\r\nLast-Modified: Wed, 22 Jul ' \
+                '2009 19:15:56 GMT\r\nContent-Type: image\r\n' \
+                'Connection: Closed\r\n\r\n'
+        image4 = '1234efg'
+        decoded_response4 = head4 + image4
+        self.response4 = HTTPResponse(
+            decoded_response4,
+            decoded_response4.encode())
+        self.expected_write_data4 = [head4[:-4]]
+        self.expected_folder_info4 = [
+            (os.path.join('folder_name', 'headers.txt'),
+             'w')
+        ]
+
     def test_get_image_bytes(self):
         headers = {'Content-Length': 3}
         actual = utils.get_image_bytes(b'abcdefg', headers)
 
         self.assertEqual(self.expected1, actual)
 
-    def test_write_one_image_response(self):
+    def test_write_one_image_response_basic(self):
         m = mock_open()
         with patch('utils.open', m):
-            utils.write_one_image_response('folder_name', self.response2, 'https://some_image.png')
+            utils.write_one_image_response(
+                'folder_name',
+                self.response2,
+                'https://some_image.png')
 
         folder_info, write_data = UtilsTests.get_info(m)
 
         self.assertEqual(self.expected_write_data2, write_data)
         self.assertEqual(self.expected_folder_info2, folder_info)
 
+    def test_write_one_image_response_none(self):
+        m = mock_open()
+        with patch('utils.open', m):
+            utils.write_one_image_response(
+                'folder_name',
+                self.response4,
+                'https://some_image.png')
+
+        folder_info, write_data = UtilsTests.get_info(m)
+
+        self.assertEqual(self.expected_write_data4, write_data)
+        self.assertEqual(self.expected_folder_info4, folder_info)
+
     def test_write_all_images(self):
         m = mock_open()
 
         with patch('utils.open', m):
-            utils.write_all_images('folder_name', self.image_name_to_image_bytes)
+            utils.write_all_images(
+                'folder_name',
+                self.image_name_to_image_bytes)
 
         folder_info, write_data = UtilsTests.get_info(m)
 

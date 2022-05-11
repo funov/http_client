@@ -65,7 +65,9 @@ def get_all_images_bytes(image_links, base_url, http_version, user_agent):
     return image_name_to_image_bytes
 
 
-def write_html_with_images_response(folder_name, response, http_method, content_type, url, http_version, user_agent):
+def write_html_with_images_response(
+        folder_name, response, http_method,
+        content_type, url, http_version, user_agent):
     write_file(os.path.join(folder_name, "headers.txt"), response.head)
 
     if http_method != "HEAD" and response.body is not None:
@@ -94,11 +96,11 @@ def write_one_image_response(folder_name, response, url):
     if "Content-Length" not in response.headers_dict.keys():
         return None
 
-    img_response = get_image_bytes(
+    img_bytes = get_image_bytes(
         response.bytes_response,
         response.headers_dict)
 
-    write_image(os.path.join(folder_name, image_name), img_response)
+    write_image(os.path.join(folder_name, image_name), img_bytes)
 
 
 def write_http_response(url, http_method, http_version, headers,
@@ -111,7 +113,8 @@ def write_http_response(url, http_method, http_version, headers,
         send_dt,
         user_agent)
 
-    if response is not None and "Content-Type" in response.headers_dict.keys():
+    if response is not None \
+            and "Content-Type" in response.headers_dict.keys():
         content_type_header = response.headers_dict['Content-Type']
         content_type = content_type_header.replace(';', '/').split('/')
     else:
@@ -122,7 +125,9 @@ def write_http_response(url, http_method, http_version, headers,
     os.mkdir(time)
 
     if content_type is not None and content_type[0] == 'text':
-        write_html_with_images_response(time, response, http_method, content_type, url, http_version, user_agent)
+        write_html_with_images_response(
+            time, response, http_method, content_type,
+            url, http_version, user_agent)
     elif content_type is not None and content_type[0] == 'image':
         write_one_image_response(time, response, url)
     elif response.decoded_response is not None:

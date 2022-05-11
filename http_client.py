@@ -24,7 +24,7 @@ def create_parser():
                         help='Заголовки для HTTP запроса в формате: '
                              '"Host: developer.mozilla.org, '
                              'Accept-Language: fr". '
-                             'Если не указать будут использованы стандартные: '
+                             'Если не указать, будут такие: '
                              'Host: {будет взят из URL}; '
                              'User-Agent: Mozilla/5.0 '
                              '(Windows NT 6.1; Win64; x64; rv:47.0) '
