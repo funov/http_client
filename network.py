@@ -65,9 +65,9 @@ class HTTPClient:
             user_agent
         )
 
-        if response.inf.split()[1][0] == '3' \
-                and 'Location' in response.headers.keys():
-            url = response.headers['Location']
+        if response.information.split()[1][0] == '3' \
+                and 'Location' in response.headers_dict.keys():
+            url = response.headers_dict['Location']
 
             print(f"Перенаправлено на {url}")
 
@@ -187,14 +187,17 @@ class HTTPResponse:
         self.decoded_response = decoded_response
 
         decoded_response = decoded_response.split('\r\n\r\n', 1)
-        d_response = decoded_response[0].split('\r\n')
+        splitted_head = decoded_response[0].split('\r\n')
 
-        self.inf = d_response[0]
+        self.head = decoded_response[0]
 
-        self.headers = {}
-        for r in d_response[1:]:
+        self.information = splitted_head[0]
+
+        self.headers_dict = {}
+
+        for r in splitted_head[1:]:
             header_with_value = r.split(': ', 1)
-            self.headers[header_with_value[0]] = header_with_value[1]
+            self.headers_dict[header_with_value[0]] = header_with_value[1]
 
         if len(decoded_response) == 2:
             self.body = decoded_response[1]

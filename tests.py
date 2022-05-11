@@ -1,7 +1,7 @@
 import unittest
 import utils
+import html_parser
 from network import HTTPRequest, HTTPResponse
-from html_parser import HTMLImageLinksParser
 
 
 class GETRequestTests(unittest.TestCase):
@@ -228,7 +228,7 @@ class PUTRequestTests(unittest.TestCase):
 
 class HTTPResponseTests(unittest.TestCase):
     def setUp(self):
-        self.decoded_response = 'HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 ' \
+        self.expected_decoded_response = 'HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 ' \
                                 '12:28:53 GMT\r\nServer: Apache/2.2.14 ' \
                                 '(Win32)\r\nLast-Modified: Wed, 22 Jul ' \
                                 '2009 19:15:56 GMT\r\nContent-Length: 88' \
@@ -236,10 +236,9 @@ class HTTPResponseTests(unittest.TestCase):
                                 'Connection: Closed\r\n\r\n<!doctype html>' \
                                 '\r\n<html>\r\n<body>\r\n<h1>Hello, ' \
                                 'World!</h1>\r\n</body>\r\n</html>'
-        self.bytes_response = self.decoded_response.encode()
-
-        self.expected_inf = "HTTP/1.1 200 OK"
-        self.expected_headers = {
+        self.expected_bytes_response = self.expected_decoded_response.encode()
+        self.expected_information = "HTTP/1.1 200 OK"
+        self.expected_headers_dict = {
             'Date': 'Mon, 27 Jul 2009 12:28:53 GMT',
             'Server': 'Apache/2.2.14 (Win32)',
             'Last-Modified': 'Wed, 22 Jul 2009 19:15:56 GMT',
@@ -249,31 +248,32 @@ class HTTPResponseTests(unittest.TestCase):
         }
         self.expected_body = '<!doctype html>\r\n<html>\r\n<body>\r\n' \
                              '<h1>Hello, World!</h1>\r\n</body>\r\n</html>'
+        self.expected_head = 'HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 ' \
+                             '12:28:53 GMT\r\nServer: Apache/2.2.14 ' \
+                             '(Win32)\r\nLast-Modified: Wed, 22 Jul ' \
+                             '2009 19:15:56 GMT\r\nContent-Length: 88' \
+                             '\r\nContent-Type: text/html\r\n' \
+                             'Connection: Closed'
+
+        self.response = HTTPResponse(self.expected_decoded_response, self.expected_bytes_response)
 
     def test_decoded_response(self):
-        response = HTTPResponse(self.decoded_response, self.bytes_response)
-
-        self.assertEqual(self.decoded_response, response.decoded_response)
+        self.assertEqual(self.expected_decoded_response, self.response.decoded_response)
 
     def test_bytes_response(self):
-        response = HTTPResponse(self.decoded_response, self.bytes_response)
+        self.assertEqual(self.expected_bytes_response, self.response.bytes_response)
 
-        self.assertEqual(self.bytes_response, response.bytes_response)
+    def test_information(self):
+        self.assertEqual(self.expected_information, self.response.information)
 
-    def test_inf(self):
-        response = HTTPResponse(self.decoded_response, self.bytes_response)
-
-        self.assertEqual(self.expected_inf, response.inf)
-
-    def test_headers(self):
-        response = HTTPResponse(self.decoded_response, self.bytes_response)
-
-        self.assertEqual(self.expected_headers, response.headers)
+    def test_headers_dict(self):
+        self.assertEqual(self.expected_headers_dict, self.response.headers_dict)
 
     def test_body(self):
-        response = HTTPResponse(self.decoded_response, self.bytes_response)
+        self.assertEqual(self.expected_body, self.response.body)
 
-        self.assertEqual(self.expected_body, response.body)
+    def test_head(self):
+        self.assertEqual(self.expected_head, self.response.head)
 
 
 class HTMLParserTests(unittest.TestCase):
@@ -286,10 +286,8 @@ class HTMLParserTests(unittest.TestCase):
         self.expected_result = ['http://python.org', 'http://example.com']
 
     def test_basic_html(self):
-        image_links_parser = HTMLImageLinksParser()
-        image_links_parser.feed(self.html)
+        image_links = html_parser.get_image_links_from_html(self.html)
 
-        image_links = image_links_parser.images
         self.assertEqual(self.expected_result, image_links)
 
 
@@ -297,13 +295,8 @@ class UtilsTests(unittest.TestCase):
     def setUp(self):
         self.expected1 = b'efg'
 
-    def test_get_img_response(self):
+    def test_get_image_bytes(self):
         headers = {'Content-Length': 3}
-        actual = utils.get_img_response(b'abcdefg', headers)
+        actual = utils.get_image_bytes(b'abcdefg', headers)
+
         self.assertEqual(self.expected1, actual)
-
-    def test_write_all_images_from_html(self):
-        pass
-
-    def test_write_http_response(self):
-        pass
