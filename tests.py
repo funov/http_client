@@ -6,24 +6,27 @@ from html_parser import HTMLImageLinksParser
 
 class GETRequestTests(unittest.TestCase):
     def setUp(self):
-        self.request1 = HTTPRequest("https://example.com",
-                                    "GET",
-                                    1.1,
-                                    None,
-                                    None,
-                                    'Firefox')
-        self.request2 = HTTPRequest("https://example.com",
-                                    "GET",
-                                    1.1,
-                                    "Connection: Keep-Alive",
-                                    None,
-                                    None)
-        self.request3 = HTTPRequest("https://example.com",
-                                    "GET",
-                                    1.1,
-                                    None,
-                                    "Test message",
-                                    'Firefox')
+        self.request1 = HTTPRequest(
+            "https://example.com",
+            "GET",
+            1.1,
+            None,
+            None,
+            'Firefox')
+        self.request2 = HTTPRequest(
+            "https://example.com",
+            "GET",
+            1.1,
+            "Connection: Keep-Alive",
+            None,
+            None)
+        self.request3 = HTTPRequest(
+            "https://example.com",
+            "GET",
+            1.1,
+            None,
+            "Test message",
+            'Firefox')
 
         self.expected_result1 = 'GET / HTTP/1.1\r\nHost: example.com\r\n' \
                                 'Connection: close\r\n' \
@@ -56,25 +59,28 @@ class GETRequestTests(unittest.TestCase):
 
 class POSTRequestTests(unittest.TestCase):
     def setUp(self):
-        self.request1 = HTTPRequest("https://example.com",
-                                    "POST",
-                                    1.1,
-                                    None,
-                                    "Test message",
-                                    'Firefox')
-        self.request2 = HTTPRequest("https://example.com",
-                                    "POST",
-                                    1.1,
-                                    "Connection: Keep-Alive, "
-                                    "Accept-Language: fr",
-                                    "Test message",
-                                    None)
-        self.request3 = HTTPRequest("https://example.com",
-                                    "POST",
-                                    1.1,
-                                    None,
-                                    None,
-                                    'Firefox')
+        self.request1 = HTTPRequest(
+            "https://example.com",
+            "POST",
+            1.1,
+            None,
+            "Test message",
+            'Firefox')
+        self.request2 = HTTPRequest(
+            "https://example.com",
+            "POST",
+            1.1,
+            "Connection: Keep-Alive, "
+            "Accept-Language: fr",
+            "Test message",
+            None)
+        self.request3 = HTTPRequest(
+            "https://example.com",
+            "POST",
+            1.1,
+            None,
+            None,
+            'Firefox')
 
         self.expected_result1 = 'POST / HTTP/1.1\r\nHost: example.com\r\n' \
                                 'Connection: close\r\n' \
@@ -110,25 +116,28 @@ class POSTRequestTests(unittest.TestCase):
 
 class HEADRequestTests(unittest.TestCase):
     def setUp(self):
-        self.request1 = HTTPRequest("https://example.com",
-                                    "HEAD",
-                                    1.1,
-                                    None,
-                                    None,
-                                    'Firefox')
-        self.request2 = HTTPRequest("https://example.com",
-                                    "HEAD",
-                                    1.1,
-                                    "Connection: Keep-Alive, "
-                                    "Accept-Language: fr",
-                                    None,
-                                    None)
-        self.request3 = HTTPRequest("https://example.com",
-                                    "HEAD",
-                                    1.1,
-                                    None,
-                                    "Test message",
-                                    'Firefox')
+        self.request1 = HTTPRequest(
+            "https://example.com",
+            "HEAD",
+            1.1,
+            None,
+            None,
+            'Firefox')
+        self.request2 = HTTPRequest(
+            "https://example.com",
+            "HEAD",
+            1.1,
+            "Connection: Keep-Alive, "
+            "Accept-Language: fr",
+            None,
+            None)
+        self.request3 = HTTPRequest(
+            "https://example.com",
+            "HEAD",
+            1.1,
+            None,
+            "Test message",
+            'Firefox')
 
         self.expected_result1 = 'HEAD / HTTP/1.1\r\nHost: example.com\r\n' \
                                 'Connection: close\r\n' \
@@ -162,25 +171,28 @@ class HEADRequestTests(unittest.TestCase):
 
 class PUTRequestTests(unittest.TestCase):
     def setUp(self):
-        self.request1 = HTTPRequest("https://example.com",
-                                    "PUT",
-                                    1.1,
-                                    None,
-                                    "Test message",
-                                    'Firefox')
-        self.request2 = HTTPRequest("https://example.com",
-                                    "PUT",
-                                    1.1,
-                                    "Connection: Keep-Alive, "
-                                    "Accept-Language: fr",
-                                    "Test message",
-                                    None)
-        self.request3 = HTTPRequest("https://example.com",
-                                    "PUT",
-                                    1.1,
-                                    None,
-                                    None,
-                                    'Firefox')
+        self.request1 = HTTPRequest(
+            "https://example.com",
+            "PUT",
+            1.1,
+            None,
+            "Test message",
+            'Firefox')
+        self.request2 = HTTPRequest(
+            "https://example.com",
+            "PUT",
+            1.1,
+            "Connection: Keep-Alive, "
+            "Accept-Language: fr",
+            "Test message",
+            None)
+        self.request3 = HTTPRequest(
+            "https://example.com",
+            "PUT",
+            1.1,
+            None,
+            None,
+            'Firefox')
 
         self.expected_result1 = 'PUT / HTTP/1.1\r\nHost: example.com\r\n' \
                                 'Connection: close\r\n' \

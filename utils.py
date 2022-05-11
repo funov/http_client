@@ -56,8 +56,10 @@ def write_all_images_from_html(body, time, cmd_commands_url,
         content_type_img = content_type_header.replace(";", "/").split("/")[0]
 
         if content_type_img == 'image':
-            img_response = get_img_response(response_img.bytes_response,
-                                            response_img.headers)
+            img_response = get_img_response(
+                response_img.bytes_response,
+                response_img.headers)
+
             write_image(os.path.join(time, "image", image_name), img_response)
 
 
@@ -88,8 +90,9 @@ def write_http_response(url, http_method, http_version, headers,
             write_file(os.path.join(time, "headers.txt"), decoded_response)
 
         if http_method != "HEAD" and response.body is not None:
-            write_file(os.path.join(time, f"result.{content_type[1]}"),
-                       response.body)
+            write_file(
+                os.path.join(time, f"result.{content_type[1]}"),
+                response.body)
 
         if http_method == 'GET' and content_type[1] == 'html':
             write_all_images_from_html(
@@ -112,7 +115,9 @@ def write_http_response(url, http_method, http_version, headers,
         img_response = get_img_response(
             response.bytes_response,
             response.headers)
+
         write_image(f'{time}/{image_name}', img_response)
     elif response.decoded_response is not None:
-        write_file(os.path.join(time, "result.txt"),
-                   response.decoded_response)
+        write_file(
+            os.path.join(time, "result.txt"),
+            response.decoded_response)
