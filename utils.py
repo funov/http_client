@@ -15,9 +15,6 @@ def write_image(path, bytes_image_response):
 
 
 def write_all_images(folder_name, image_name_to_image_bytes):
-    if len(image_name_to_image_bytes.keys()) != 0:
-        os.mkdir(os.path.join(folder_name, "image"))
-
     for image_name in image_name_to_image_bytes.keys():
         write_image(
             os.path.join(folder_name, "image", image_name),
@@ -83,7 +80,10 @@ def write_html_with_images_response(folder_name, response, http_method, content_
             url,
             http_version,
             user_agent)
-        write_all_images(folder_name, image_name_to_image_bytes)
+
+        if len(image_name_to_image_bytes.keys()) != 0:
+            os.mkdir(os.path.join(folder_name, "image"))
+            write_all_images(folder_name, image_name_to_image_bytes)
 
 
 def write_one_image_response(folder_name, response, url):
@@ -98,7 +98,7 @@ def write_one_image_response(folder_name, response, url):
         response.bytes_response,
         response.headers_dict)
 
-    write_image(f'{folder_name}/{image_name}', img_response)
+    write_image(os.path.join(folder_name, image_name), img_response)
 
 
 def write_http_response(url, http_method, http_version, headers,

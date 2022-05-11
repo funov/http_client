@@ -1,4 +1,6 @@
+import os.path
 import unittest
+from unittest.mock import patch, mock_open
 import utils
 import html_parser
 from network import HTTPRequest, HTTPResponse
@@ -295,8 +297,66 @@ class UtilsTests(unittest.TestCase):
     def setUp(self):
         self.expected1 = b'efg'
 
+        head2 = 'HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 ' \
+                '12:28:53 GMT\r\nServer: Apache/2.2.14 ' \
+                '(Win32)\r\nLast-Modified: Wed, 22 Jul ' \
+                '2009 19:15:56 GMT\r\nContent-Length: 6' \
+                '\r\nContent-Type: image\r\n' \
+                'Connection: Closed\r\n\r\n'
+        image2 = '123efg'
+        decoded_response2 = head2 + image2
+        self.response2 = HTTPResponse(decoded_response2, decoded_response2.encode())
+        self.expected_write_data2 = [head2[:-4], image2.encode()]
+        self.expected_folder_info2 = [(os.path.join('folder_name', 'headers.txt'), 'w'), (os.path.join('folder_name', 'some_image.png'), 'wb')]
+
+        self.image_name_to_image_bytes = {
+            "image1.png": b'1234',
+            "image2.png": b'abc',
+            "image3.png": b'1bc'
+        }
+        self.expected_write_data3 = [b'1234', b'abc', b'1bc']
+        self.expected_folder_info3 = [
+            (os.path.join('folder_name', 'image', 'image1.png'), 'wb'),
+            (os.path.join('folder_name', 'image', 'image2.png'), 'wb'),
+            (os.path.join('folder_name', 'image', 'image3.png'), 'wb')]
+
     def test_get_image_bytes(self):
         headers = {'Content-Length': 3}
         actual = utils.get_image_bytes(b'abcdefg', headers)
 
         self.assertEqual(self.expected1, actual)
+
+    def test_write_one_image_response(self):
+        m = mock_open()
+        with patch('utils.open', m):
+            utils.write_one_image_response('folder_name', self.response2, 'https://some_image.png')
+
+        folder_info, write_data = UtilsTests.get_info(m)
+
+        self.assertEqual(self.expected_write_data2, write_data)
+        self.assertEqual(self.expected_folder_info2, folder_info)
+
+    def test_write_all_images(self):
+        m = mock_open()
+
+        with patch('utils.open', m):
+            utils.write_all_images('folder_name', self.image_name_to_image_bytes)
+
+        folder_info, write_data = UtilsTests.get_info(m)
+
+        self.assertEqual(self.expected_write_data3, write_data)
+        self.assertEqual(self.expected_folder_info3, folder_info)
+
+    @staticmethod
+    def get_info(m):
+        calls = m.mock_calls
+
+        folder_info = []
+        write_data = []
+        for call in calls:
+            if call[0] == '().write':
+                write_data.append(call[1][0])
+            if call[0] == '':
+                folder_info.append(call[1])
+
+        return folder_info, write_data
